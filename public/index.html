@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Split Expenses - test page</title>
+</head>
+<body>
+  <h1>Split Expenses - test page</h1>
+  <p>Temporary page for testing the backend. It will be replaced in week 6.</p>
+
+  <h2>1. Register</h2>
+  <input id="r-name" placeholder="Name">
+  <input id="r-email" placeholder="Email">
+  <input id="r-pass" type="password" placeholder="Password">
+  <button onclick="send('/api/register', 'POST', { name: val('r-name'), email: val('r-email'), password: val('r-pass') })">Register</button>
+
+  <h2>2. Log in</h2>
+  <input id="l-email" placeholder="Email">
+  <input id="l-pass" type="password" placeholder="Password">
+  <button onclick="send('/api/login', 'POST', { email: val('l-email'), password: val('l-pass') })">Log in</button>
+
+  <h2>3. Who am I / log out</h2>
+  <button onclick="send('/api/me', 'GET')">Who am I?</button>
+  <button onclick="send('/api/logout', 'POST', {})">Log out</button>
+
+  <h2>4. Create group</h2>
+  <input id="g-name" placeholder="Group name">
+  <button onclick="send('/api/groups', 'POST', { name: val('g-name') })">Create group</button>
+  <button onclick="send('/api/groups', 'GET')">My groups</button>
+
+  <h2>5. Roommates</h2>
+  <input id="m-group" placeholder="Group id" size="8">
+  <input id="m-email" placeholder="Roommate email">
+  <button onclick="send('/api/groups/' + val('m-group') + '/members', 'POST', { email: val('m-email') })">Add roommate</button>
+  <button onclick="send('/api/groups/' + val('m-group') + '/members', 'GET')">Show members</button>
+
+  <h2>Server response</h2>
+  <pre id="out">(nothing yet)</pre>
+
+  <script>
+    function val(id) {
+      return document.getElementById(id).value;
+    }
+
+    async function send(url, method, body) {
+      const options = { method: method, headers: { 'Content-Type': 'application/json' } };
+      if (body) options.body = JSON.stringify(body);
+      const response = await fetch(url, options);
+      const data = await response.json();
+      document.getElementById('out').textContent =
+        'Status: ' + response.status + '\n' + JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>
