@@ -156,3 +156,17 @@ td.wrap { white-space: normal; }
   .layout { grid-template-columns: 1fr; }
   .top { padding: 12px 16px; }
 }
+
+h3 { margin: 20px 0 8px; font-size: 0.95rem; font-weight: 600; color: var(--muted); }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+.tile { display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 8px; }
+.tile-label { font-size: 0.85rem; color: var(--muted); }
+.tile strong { font-size: 1.4rem; font-variant-numeric: tabular-nums; }
+
+.debt-list { list-style: none; margin: 0; padding: 0; }
+.debt-row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.debt-list .debt-row:last-child { border-bottom: none; }
+
+.category-box { border: 1px solid var(--line); border-radius: 8px; padding: 4px 14px 6px; }
+.category-head { border-bottom: 1px solid var(--line); }

@@ -63,6 +63,25 @@
             </div>
 
             <div class="card">
+              <h2>Debts overview</h2>
+              <div class="tiles">
+                <div class="tile"><span class="tile-label">You owe</span><strong id="total-owe">0.00 PLN</strong></div>
+                <div class="tile"><span class="tile-label">Owed to you</span><strong id="total-owed">0.00 PLN</strong></div>
+              </div>
+
+              <h3>Who owes whom</h3>
+              <p id="no-debts" class="muted" hidden>Everyone is settled up.</p>
+              <ul id="debt-list" class="debt-list"></ul>
+
+              <h3>Balance per person</h3>
+              <ul id="balance-list" class="chips"></ul>
+
+              <h3>Open debts by category</h3>
+              <p id="no-categories" class="muted" hidden>No open debts.</p>
+              <div id="category-board" class="stack"></div>
+            </div>
+
+            <div class="card">
               <h2>Add expense</h2>
               <form id="expense-form" class="stack">
                 <div class="grid">

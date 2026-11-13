@@ -15,6 +15,7 @@ app.use(express.static('public'));
 
 app.use('/api', require('./routes/auth'));
 app.use('/api/groups/:groupId/expenses', require('./routes/expenses'));
+app.use('/api/groups/:groupId/balances', require('./routes/balances'));
 app.use('/api/groups', require('./routes/groups'));
 
 app.get('/api/status', (req, res) => {
