@@ -27,7 +27,6 @@ db.exec(`
     group_id INTEGER NOT NULL REFERENCES "groups"(id),
     paid_by INTEGER NOT NULL REFERENCES users(id),
     amount_cents INTEGER NOT NULL,
-    category TEXT NOT NULL,
     description TEXT,
     date TEXT NOT NULL
   );
@@ -40,5 +39,12 @@ db.exec(`
     is_settled INTEGER NOT NULL DEFAULT 0
   );
 `);
+
+// Migration: older databases still have the removed "category" column in
+// the expenses table. Drop it once, so saving expenses keeps working.
+const expenseColumns = db.prepare('PRAGMA table_info(expenses)').all();
+if (expenseColumns.some((column) => column.name === 'category')) {
+  db.exec('ALTER TABLE expenses DROP COLUMN category');
+}
 
 module.exports = db;

@@ -1,5 +1,3 @@
-const CATEGORIES = ['groceries', 'dinners', 'cleaning', 'utilities', 'rent', 'other'];
-
 const state = { user: null, groups: [], groupId: null, members: [] };
 
 const $ = (id) => document.getElementById(id);
@@ -38,10 +36,6 @@ function todayString() {
   const d = new Date();
   const pad = (n) => String(n).padStart(2, '0');
   return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
-}
-
-function capitalize(text) {
-  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 // Creates an element with safe text (never inserts user text as HTML).
@@ -134,15 +128,6 @@ function renderMembers() {
 /* ---------- Expense form ---------- */
 
 function renderExpenseForm() {
-  const category = $('expense-category');
-  if (category.options.length === 0) {
-    for (const name of CATEGORIES) {
-      const option = el('option', capitalize(name));
-      option.value = name;
-      category.appendChild(option);
-    }
-  }
-
   $('expense-date').value = todayString();
 
   const paidBy = $('expense-paid-by');
@@ -189,7 +174,6 @@ function renderExpenses(expenses) {
     const row = el('tr');
     row.appendChild(el('td', expense.date));
     row.appendChild(el('td', expense.description || '-', 'wrap'));
-    row.appendChild(el('td', capitalize(expense.category)));
     row.appendChild(el('td', expense.paid_by_name));
     row.appendChild(el('td', formatMoney(expense.amount_cents), 'num'));
     row.appendChild(el('td', expense.shared_with || '-', 'wrap'));
@@ -237,28 +221,6 @@ function renderDashboard(summary) {
   for (const person of summary.balances) {
     const sign = person.balance_cents > 0 ? '+' : '';
     balanceList.appendChild(el('li', person.name + ': ' + sign + formatMoney(person.balance_cents)));
-  }
-
-  // Open debts by category
-  const board = $('category-board');
-  board.replaceChildren();
-  $('no-categories').hidden = summary.breakdown.length > 0;
-  for (const group of summary.breakdown) {
-    const box = el('div', undefined, 'category-box');
-    const head = el('div', undefined, 'debt-row category-head');
-    head.appendChild(el('strong', capitalize(group.category)));
-    head.appendChild(el('strong', formatMoney(group.total_cents), 'num'));
-    box.appendChild(head);
-
-    const list = el('ul', undefined, 'debt-list');
-    for (const item of group.items) {
-      const row = el('li', undefined, 'debt-row');
-      row.appendChild(el('span', debtSentence(item)));
-      row.appendChild(el('span', formatMoney(item.amount_cents), 'num'));
-      list.appendChild(row);
-    }
-    box.appendChild(list);
-    board.appendChild(box);
   }
 }
 
@@ -351,7 +313,6 @@ $('expense-form').addEventListener('submit', async (event) => {
   const result = await api('/api/groups/' + state.groupId + '/expenses', 'POST', {
     description: $('expense-description').value,
     amount: $('expense-amount').value,
-    category: $('expense-category').value,
     date: $('expense-date').value,
     paidBy: Number($('expense-paid-by').value),
     splitBetween: splitBetween,

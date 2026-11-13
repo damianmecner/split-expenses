@@ -1,8 +1,8 @@
 // Settlement logic: calculates who owes whom.
 // It works on plain data (no database, no server), so it is easy to test.
 //
-// Input "rows" = unsettled debts, one row per (debtor, creditor, category):
-// { debtor_id, debtor_name, creditor_id, creditor_name, category, amount_cents }
+// Input "rows" = unsettled debts, one row per (debtor, creditor):
+// { debtor_id, debtor_name, creditor_id, creditor_name, amount_cents }
 
 // Net debt between each pair of people. If A owes B 30 and B owes A 10,
 // the result is one debt: A owes B 20.
@@ -53,32 +53,6 @@ function computeBalances(members, rows) {
   return [...balances.values()];
 }
 
-// Open debts grouped by category (not netted), biggest category first.
-function groupByCategory(rows) {
-  const groups = new Map();
-  for (const row of rows) {
-    if (!groups.has(row.category)) {
-      groups.set(row.category, { category: row.category, total_cents: 0, items: [] });
-    }
-    const group = groups.get(row.category);
-    group.total_cents += row.amount_cents;
-    group.items.push({
-      from_id: row.debtor_id,
-      from_name: row.debtor_name,
-      to_id: row.creditor_id,
-      to_name: row.creditor_name,
-      amount_cents: row.amount_cents,
-    });
-  }
-
-  const result = [...groups.values()];
-  result.sort((a, b) => b.total_cents - a.total_cents || a.category.localeCompare(b.category));
-  for (const group of result) {
-    group.items.sort((a, b) => b.amount_cents - a.amount_cents);
-  }
-  return result;
-}
-
 function buildSummary(members, rows, currentUserId) {
   const debts = netDebts(rows);
   let youOwe = 0;
@@ -90,9 +64,8 @@ function buildSummary(members, rows, currentUserId) {
   return {
     balances: computeBalances(members, rows),
     debts,
-    breakdown: groupByCategory(rows),
     totals: { you_owe_cents: youOwe, owed_to_you_cents: owedToYou },
   };
 }
 
-module.exports = { netDebts, computeBalances, groupByCategory, buildSummary };
+module.exports = { netDebts, computeBalances, buildSummary };

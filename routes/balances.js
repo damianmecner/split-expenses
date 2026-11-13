@@ -36,14 +36,13 @@ router.get('/', (req, res) => {
     .prepare(
       `SELECT s.user_id AS debtor_id, du.name AS debtor_name,
               e.paid_by AS creditor_id, cu.name AS creditor_name,
-              e.category AS category,
               SUM(s.amount_cents) AS amount_cents
          FROM expense_shares s
          JOIN expenses e ON e.id = s.expense_id
          JOIN users du ON du.id = s.user_id
          JOIN users cu ON cu.id = e.paid_by
         WHERE e.group_id = ? AND s.is_settled = 0
-        GROUP BY s.user_id, e.paid_by, e.category`
+        GROUP BY s.user_id, e.paid_by`
     )
     .all(groupId);
 

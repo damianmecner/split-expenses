@@ -75,10 +75,6 @@
 
               <h3>Balance per person</h3>
               <ul id="balance-list" class="chips"></ul>
-
-              <h3>Open debts by category</h3>
-              <p id="no-categories" class="muted" hidden>No open debts.</p>
-              <div id="category-board" class="stack"></div>
             </div>
 
             <div class="card">
@@ -87,7 +83,6 @@
                 <div class="grid">
                   <label>Description <input id="expense-description" type="text" maxlength="100" placeholder="Biedronka"></label>
                   <label>Amount (PLN) <input id="expense-amount" type="text" inputmode="decimal" placeholder="90.00" required></label>
-                  <label>Category <select id="expense-category"></select></label>
                   <label>Date <input id="expense-date" type="date" required></label>
                   <label>Paid by <select id="expense-paid-by"></select></label>
                 </div>
@@ -108,7 +103,6 @@
                     <tr>
                       <th>Date</th>
                       <th>Description</th>
-                      <th>Category</th>
                       <th>Paid by</th>
                       <th class="num">Amount</th>
                       <th>Split with</th>

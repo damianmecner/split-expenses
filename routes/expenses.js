@@ -3,8 +3,6 @@ const db = require('../database');
 
 const router = express.Router({ mergeParams: true });
 
-const CATEGORIES = ['groceries', 'dinners', 'cleaning', 'utilities', 'rent', 'other'];
-
 router.use((req, res, next) => {
   if (!req.session.userId) {
     return res.status(401).json({ error: 'You must be logged in.' });
@@ -59,11 +57,6 @@ router.post('/', (req, res) => {
     return res.status(400).json({ error: 'Enter a valid amount, for example 12.50.' });
   }
 
-  const category = String(body.category || '').toLowerCase();
-  if (!CATEGORIES.includes(category)) {
-    return res.status(400).json({ error: 'Choose a category from the list.' });
-  }
-
   const paidBy = Number(body.paidBy);
   if (!isMember(groupId, paidBy)) {
     return res.status(400).json({ error: 'The person who paid must be a member of the group.' });
@@ -87,9 +80,9 @@ router.post('/', (req, res) => {
   const save = db.transaction(() => {
     const result = db
       .prepare(
-        'INSERT INTO expenses (group_id, paid_by, amount_cents, category, description, date) VALUES (?, ?, ?, ?, ?, ?)'
+        'INSERT INTO expenses (group_id, paid_by, amount_cents, description, date) VALUES (?, ?, ?, ?, ?)'
       )
-      .run(groupId, paidBy, amountCents, category, description, date);
+      .run(groupId, paidBy, amountCents, description, date);
 
     const expenseId = result.lastInsertRowid;
     const insertShare = db.prepare(
@@ -117,7 +110,7 @@ router.get('/', (req, res) => {
   const expenses = db
     .prepare(
       `
-      SELECT e.id, e.amount_cents, e.category, e.description, e.date,
+      SELECT e.id, e.amount_cents, e.description, e.date,
              e.paid_by, u.name AS paid_by_name,
              (SELECT group_concat(us.name, ', ')
                 FROM expense_shares s
