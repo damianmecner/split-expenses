@@ -120,6 +120,7 @@ async function selectGroup(groupId) {
   renderMembers();
   renderExpenseForm();
   await loadExpenses();
+  await loadBalances();
 }
 
 function renderMembers() {
@@ -193,6 +194,71 @@ function renderExpenses(expenses) {
     row.appendChild(el('td', formatMoney(expense.amount_cents), 'num'));
     row.appendChild(el('td', expense.shared_with || '-', 'wrap'));
     body.appendChild(row);
+  }
+}
+
+/* ---------- Dashboard (debts) ---------- */
+
+async function loadBalances() {
+  const result = await api('/api/groups/' + state.groupId + '/balances');
+  if (!result.ok) {
+    return showMessage(result.data.error || 'Could not load debts.');
+  }
+  renderDashboard(result.data);
+}
+
+// "You owe Anna" / "Bartek owes you" / "Bartek owes Czarek"
+function debtSentence(debt) {
+  const me = state.user.id;
+  const who = debt.from_id === me ? 'You' : debt.from_name;
+  const verb = debt.from_id === me ? ' owe ' : ' owes ';
+  const toWhom = debt.to_id === me ? 'you' : debt.to_name;
+  return who + verb + toWhom;
+}
+
+function renderDashboard(summary) {
+  $('total-owe').textContent = formatMoney(summary.totals.you_owe_cents);
+  $('total-owed').textContent = formatMoney(summary.totals.owed_to_you_cents);
+
+  // Who owes whom (net, per pair of people)
+  const debtList = $('debt-list');
+  debtList.replaceChildren();
+  $('no-debts').hidden = summary.debts.length > 0;
+  for (const debt of summary.debts) {
+    const item = el('li', undefined, 'debt-row');
+    item.appendChild(el('span', debtSentence(debt)));
+    item.appendChild(el('strong', formatMoney(debt.amount_cents), 'num'));
+    debtList.appendChild(item);
+  }
+
+  // Balance per person (+ means others owe them)
+  const balanceList = $('balance-list');
+  balanceList.replaceChildren();
+  for (const person of summary.balances) {
+    const sign = person.balance_cents > 0 ? '+' : '';
+    balanceList.appendChild(el('li', person.name + ': ' + sign + formatMoney(person.balance_cents)));
+  }
+
+  // Open debts by category
+  const board = $('category-board');
+  board.replaceChildren();
+  $('no-categories').hidden = summary.breakdown.length > 0;
+  for (const group of summary.breakdown) {
+    const box = el('div', undefined, 'category-box');
+    const head = el('div', undefined, 'debt-row category-head');
+    head.appendChild(el('strong', capitalize(group.category)));
+    head.appendChild(el('strong', formatMoney(group.total_cents), 'num'));
+    box.appendChild(head);
+
+    const list = el('ul', undefined, 'debt-list');
+    for (const item of group.items) {
+      const row = el('li', undefined, 'debt-row');
+      row.appendChild(el('span', debtSentence(item)));
+      row.appendChild(el('span', formatMoney(item.amount_cents), 'num'));
+      list.appendChild(row);
+    }
+    box.appendChild(list);
+    board.appendChild(box);
   }
 }
 
@@ -298,6 +364,7 @@ $('expense-form').addEventListener('submit', async (event) => {
   $('expense-amount').value = '';
   showMessage('Expense saved.', 'ok');
   await loadExpenses();
+  await loadBalances();
 });
 
 /* ---------- Start ---------- */
